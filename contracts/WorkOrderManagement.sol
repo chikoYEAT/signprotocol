@@ -25,4 +25,9 @@ contract WorkOrderManagement is AccessControl {
     function approveWorkOrder(uint256 _index) public onlyRole(DEFAULT_ADMIN_ROLE) {
         workOrders[_index].approved = true;
     }
+
+    // Add this getter function
+    function getDepartmentRole() public pure returns (bytes32) {
+        return DEPARTMENT_ROLE;
+    }
 }
