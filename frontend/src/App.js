@@ -1,28 +1,64 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Web3Provider } from './hooks/useWeb3Context';
-import Navbar from './components/Navbar';
-import WorkOrders from './components/WorkOrders';
-import Auction from './components/Auctions';
+import React, { useState } from 'react';
+import { createWorkOrder, approveWorkOrder, connectWallet } from './contractIntegration'; // Ensure connectWallet is imported
 
 function App() {
+  const [details, setDetails] = useState('');
+  const [orderId, setOrderId] = useState('');
+
+  const handleCreateWorkOrder = async () => {
+    try {
+      await createWorkOrder(details);
+      alert('Work Order Created');
+    } catch (error) {
+      alert('Error creating work order:', error.message);
+    }
+  };
+
+  const handleApproveWorkOrder = async () => {
+    try {
+      await approveWorkOrder(orderId);
+      alert('Work Order Approved');
+    } catch (error) {
+      alert('Error approving work order:', error.message);
+    }
+  };
+
+  const handleConnectWallet = async () => {
+    try {
+      await connectWallet();
+      alert('Wallet Connected');
+    } catch (error) {
+      alert('Error connecting wallet:', error.message);
+    }
+  };
+
   return (
-    <Web3Provider>
-      <Router>
-        <div className="App">
-          <Navbar />
-          <Routes>
-            {/* Home Page */}
-            <Route path="/" element={<WorkOrders />} />
-            {/* Work Orders Page */}
-            <Route path="/work-orders" element={<WorkOrders />} />
-            {/* Auction Page */}
-            <Route path="/auctions" element={<Auction />} />
-            {/* Add more routes as needed */}
-          </Routes>
-        </div>
-      </Router>
-    </Web3Provider>
+    <div className="App">
+      <button onClick={handleConnectWallet}>Connect Wallet</button> {/* Updated to use handleConnectWallet */}
+      <h1>Work Order Management</h1>
+
+      <div>
+        <h2>Create Work Order</h2>
+        <input 
+          type="text" 
+          value={details} 
+          onChange={(e) => setDetails(e.target.value)} 
+          placeholder="Enter work order details"
+        />
+        <button onClick={handleCreateWorkOrder}>Create</button>
+      </div>
+
+      <div>
+        <h2>Approve Work Order</h2>
+        <input 
+          type="text" 
+          value={orderId} 
+          onChange={(e) => setOrderId(e.target.value)} 
+          placeholder="Enter work order ID"
+        />
+        <button onClick={handleApproveWorkOrder}>Approve</button>
+      </div>
+    </div>
   );
 }
 
