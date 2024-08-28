@@ -34,6 +34,10 @@ contract Auction is AccessControl {
     function placeBid(uint256 auctionId) external payable {
         AuctionItem storage auction = auctions[auctionId];
         require(msg.value > auction.highestBid, "Bid too low");
+        require(!auction.finalized, "Auction already finalized");
+        if (auction.highestBidder != address(0)) {
+            payable(auction.highestBidder).transfer(auction.highestBid);
+        }
         auction.highestBidder = msg.sender;
         auction.highestBid = msg.value;
         emit NewBid(auctionId, msg.sender, msg.value);
@@ -41,7 +45,7 @@ contract Auction is AccessControl {
 
     function finalizeAuction(uint256 auctionId) external onlyRole(ADMIN_ROLE) {
         AuctionItem storage auction = auctions[auctionId];
-        require(!auction.finalized, "Already finalized");
+        require(!auction.finalized, "Auction already finalized");
         auction.finalized = true;
         payable(auction.highestBidder).transfer(auction.highestBid);
         emit AuctionFinalized(auctionId, auction.highestBidder, auction.highestBid);
