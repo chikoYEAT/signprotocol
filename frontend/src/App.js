@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
+import { BrowserRouter as Router, Route, Routes, Switch, Link } from 'react-router-dom';
 import WorkOrderManagementABI from './abis/WorkOrderManagement.json';
 import { 
   createWorkOrder, 
@@ -10,59 +11,16 @@ import {
   placeBid,
   finalizeAuction
 } from './contractIntegration';
+import Login from './components/Login';
 
-function App() {
+function Dashboard({ walletConnected, handleConnectWallet, contract, account }) {
   const [workOrderDetails, setWorkOrderDetails] = useState('');
   const [workOrderId, setWorkOrderId] = useState('');
   const [certificateURL, setCertificateURL] = useState('');
   const [auctionDetails, setAuctionDetails] = useState('');
   const [bidAmount, setBidAmount] = useState('');
   const [auctionId, setAuctionId] = useState('');
-  const [walletConnected, setWalletConnected] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [isWalletConnected, setIsWalletConnected] = useState(false);
-    const [contract, setContract] = useState(null);
-  const [account, setAccount] = useState('');
-
-  useEffect(() => {
-    const checkWalletConnection = async () => {
-      if (typeof window.ethereum !== 'undefined') {
-        try {
-          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-          if (accounts.length > 0) {
-            await handleConnectWallet();
-          }
-        } catch (error) {
-          console.error("Failed to check wallet connection:", error);
-        }
-      }
-    };
-
-    checkWalletConnection();
-  }, []);
-
-  const handleConnectWallet = async () => {
-    try {
-      if (typeof window.ethereum !== 'undefined') {
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        const address = signer.getAddress()
-        setAccount(address);
-
-        const workOrderContract = new ethers.Contract('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', WorkOrderManagementABI.abi, signer);
-        setContract(workOrderContract);
-
-        setWalletConnected(true);
-        setErrorMessage('');
-      } else {
-        setErrorMessage('Please install MetaMask!');
-      }
-    } catch (error) {
-      setErrorMessage('Error connecting wallet: ' + error.message);
-    }
-  };
-
 
   const handleGrantRoleAndCreateWorkOrder = async () => {
     if (!walletConnected) {
@@ -169,7 +127,6 @@ function App() {
       setErrorMessage('Error finalizing auction: ' + error.message);
     }
   };
-
   return (
     <div className="p-4">
       <button 
@@ -263,6 +220,95 @@ function App() {
         <button onClick={handleFinalizeAuction}>Finalize Auction</button>
       </div>
     </div>
+  );
+}
+
+
+function Home() {
+  return (
+    <div>
+      <h1>Welcome to Work Order Management</h1>
+      <p>Please login or connect your wallet to continue.</p>
+    </div>
+  );
+}
+
+function App() {
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [contract, setContract] = useState(null);
+  const [account, setAccount] = useState('');
+
+  useEffect(() => {
+    const checkWalletConnection = async () => {
+      if (typeof window.ethereum !== 'undefined') {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts.length > 0) {
+            await handleConnectWallet();
+          }
+        } catch (error) {
+          console.error("Failed to check wallet connection:", error);
+        }
+      }
+    };
+
+    checkWalletConnection();
+  }, []);
+
+  const handleConnectWallet = async () => {
+    try {
+      if (typeof window.ethereum !== 'undefined') {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const address = await signer.getAddress();
+        setAccount(address);
+
+        const workOrderContract = new ethers.Contract('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', WorkOrderManagementABI.abi, signer);
+        setContract(workOrderContract);
+
+        setWalletConnected(true);
+        setErrorMessage('');
+      } else {
+        setErrorMessage('Please install MetaMask!');
+      }
+    } catch (error) {
+      setErrorMessage('Error connecting wallet: ' + error.message);
+    }
+  };
+
+  return (
+    <Router>
+      <div>
+        <nav>
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+            <li>
+              <Link to="/dashboard">Dashboard</Link>
+            </li>
+          </ul>
+        </nav>
+
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={
+            <Dashboard 
+              walletConnected={walletConnected}
+              handleConnectWallet={handleConnectWallet}
+              contract={contract}
+              account={account}
+            />
+          } />
+          <Route path="/" element={<Home />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
