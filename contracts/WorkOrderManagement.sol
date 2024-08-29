@@ -16,7 +16,7 @@ contract WorkOrderManagement is AccessControl {
         string description;
         address issuer;
         bool approved;
-        string certificateURL; // URL to the certificate
+        string certificateURL;
     }
 
     mapping(uint256 => WorkOrder) public workOrders;
@@ -27,7 +27,8 @@ contract WorkOrderManagement is AccessControl {
 
     constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(DEPARTMENT_ROLE, msg.sender); // Grant initial role to deployer
+        _setupRole(DEPARTMENT_ROLE, msg.sender);
+        _setupRole(ADMIN_ROLE, msg.sender);
     }
 
     function createWorkOrder(string memory _description) public onlyRole(DEPARTMENT_ROLE) {
@@ -49,6 +50,10 @@ contract WorkOrderManagement is AccessControl {
         require(workOrder.approved, "Work order not approved");
         workOrder.certificateURL = _certificateURL;
         emit CertificateIssued(_id, _certificateURL);
+    }
+
+    function grantDepartmentRole(address account) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(DEPARTMENT_ROLE, account);
     }
 
     function getDepartmentRole() public pure returns (bytes32) {

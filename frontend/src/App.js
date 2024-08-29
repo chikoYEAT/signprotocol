@@ -1,6 +1,15 @@
-import React, { useState } from 'react';
-import { createWorkOrder, approveWorkOrder, issueCertificate, connectWallet } from './contractIntegration'; // Ensure imports are updated
-import { createAuction, placeBid, finalizeAuction } from './contractIntegration';
+import React, { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
+import WorkOrderManagementABI from './abis/WorkOrderManagement.json';
+import { 
+  createWorkOrder, 
+  approveWorkOrder, 
+  issueCertificate, 
+  connectWallet,
+  createAuction,
+  placeBid,
+  finalizeAuction
+} from './contractIntegration';
 
 function App() {
   const [workOrderDetails, setWorkOrderDetails] = useState('');
@@ -9,86 +18,184 @@ function App() {
   const [auctionDetails, setAuctionDetails] = useState('');
   const [bidAmount, setBidAmount] = useState('');
   const [auctionId, setAuctionId] = useState('');
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
+    const [contract, setContract] = useState(null);
+  const [account, setAccount] = useState('');
+
+  useEffect(() => {
+    const checkWalletConnection = async () => {
+      if (typeof window.ethereum !== 'undefined') {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts.length > 0) {
+            await handleConnectWallet();
+          }
+        } catch (error) {
+          console.error("Failed to check wallet connection:", error);
+        }
+      }
+    };
+
+    checkWalletConnection();
+  }, []);
+
+  const handleConnectWallet = async () => {
+    try {
+      if (typeof window.ethereum !== 'undefined') {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const address = signer.getAddress()
+        setAccount(address);
+
+        const workOrderContract = new ethers.Contract('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', WorkOrderManagementABI.abi, signer);
+        setContract(workOrderContract);
+
+        setWalletConnected(true);
+        setErrorMessage('');
+      } else {
+        setErrorMessage('Please install MetaMask!');
+      }
+    } catch (error) {
+      setErrorMessage('Error connecting wallet: ' + error.message);
+    }
+  };
+
+
+  const handleGrantRoleAndCreateWorkOrder = async () => {
+    if (!walletConnected) {
+      setErrorMessage('Please connect your wallet first.');
+      return;
+    }
+    try {
+      // Grant the DEPARTMENT_ROLE to the current account
+      const tx1 = await contract.grantDepartmentRole(account);
+      await tx1.wait();
+      console.log('DEPARTMENT_ROLE granted to', account);
+
+      // Now create a work order
+      const tx2 = await contract.createWorkOrder(workOrderDetails);
+      await tx2.wait();
+      console.log('Work order created successfully');
+      alert('Role granted and Work Order created successfully!');
+    } catch (error) {
+      setErrorMessage('Error: ' + error.message);
+    }
+  };
 
   const handleCreateWorkOrder = async () => {
+    if (!walletConnected) {
+      setErrorMessage('Please connect your wallet first.');
+      return;
+    }
     try {
-      await createWorkOrder(workOrderDetails);
+      const tx = await contract.createWorkOrder(workOrderDetails);
+      await tx.wait();
       alert('Work Order Created');
+      setErrorMessage('');
     } catch (error) {
-      alert('Error creating work order:', error.message);
+      setErrorMessage('Error creating work order: ' + error.message);
     }
   };
 
   const handleApproveWorkOrder = async () => {
+    if (!walletConnected) {
+      setErrorMessage('Please connect your wallet first.');
+      return;
+    }
     try {
       await approveWorkOrder(workOrderId);
       alert('Work Order Approved');
+      setErrorMessage('');
     } catch (error) {
-      alert('Error approving work order:', error.message);
+      setErrorMessage('Error approving work order: ' + error.message);
     }
   };
 
   const handleIssueCertificate = async () => {
+    if (!walletConnected) {
+      setErrorMessage('Please connect your wallet first.');
+      return;
+    }
     try {
       await issueCertificate(workOrderId, certificateURL);
       alert('Certificate Issued');
+      setErrorMessage('');
     } catch (error) {
-      alert('Error issuing certificate:', error.message);
+      setErrorMessage('Error issuing certificate: ' + error.message);
     }
   };
 
   const handleCreateAuction = async () => {
+    if (!walletConnected) {
+      setErrorMessage('Please connect your wallet first.');
+      return;
+    }
     try {
       await createAuction(auctionDetails);
       alert('Auction Created');
+      setErrorMessage('');
     } catch (error) {
-      alert('Error creating auction:', error.message);
+      setErrorMessage('Error creating auction: ' + error.message);
     }
   };
 
   const handlePlaceBid = async () => {
+    if (!walletConnected) {
+      setErrorMessage('Please connect your wallet first.');
+      return;
+    }
     try {
       await placeBid(auctionId, bidAmount);
       alert('Bid Placed');
+      setErrorMessage('');
     } catch (error) {
-      alert('Error placing bid:', error.message);
+      setErrorMessage('Error placing bid: ' + error.message);
     }
   };
 
   const handleFinalizeAuction = async () => {
+    if (!walletConnected) {
+      setErrorMessage('Please connect your wallet first.');
+      return;
+    }
     try {
       await finalizeAuction(auctionId);
       alert('Auction Finalized');
+      setErrorMessage('');
     } catch (error) {
-      alert('Error finalizing auction:', error.message);
-    }
-  };
-
-  const handleConnectWallet = async () => {
-    try {
-      await connectWallet();
-      alert('Wallet Connected');
-    } catch (error) {
-      alert('Error connecting wallet:', error.message);
+      setErrorMessage('Error finalizing auction: ' + error.message);
     }
   };
 
   return (
-    <div className="App">
-      <button onClick={handleConnectWallet}>Connect Wallet</button>
-      <h1>Work Order Management</h1>
+    <div className="p-4">
+      <button 
+        onClick={handleConnectWallet} 
+        disabled={walletConnected}
+        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
+      >
+        {walletConnected ? 'Wallet Connected' : 'Connect Wallet'}
+      </button>
+      
+      {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
 
-      <div>
-        <h2>Create Work Order</h2>
+      <h1 className="text-2xl font-bold mb-4">Work Order Management</h1>
+
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold mb-2">Create Work Order</h2>
         <input 
           type="text" 
           value={workOrderDetails} 
           onChange={(e) => setWorkOrderDetails(e.target.value)} 
           placeholder="Enter work order details"
+          className="border p-2 mr-2"
         />
-        <button onClick={handleCreateWorkOrder}>Create</button>
+        <button onClick={handleCreateWorkOrder} className="px-4 py-2 bg-green-500 text-white rounded">Create</button>
+        <button onClick={handleGrantRoleAndCreateWorkOrder} className="ml-2 px-4 py-2 bg-yellow-500 text-white rounded">Grant Role & Create</button>
       </div>
-
       <div>
         <h2>Approve Work Order</h2>
         <input 

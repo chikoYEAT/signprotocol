@@ -8,7 +8,7 @@
     "@nomiclabs/hardhat-waffle": "^2.0.0",
     "@openzeppelin/contracts": "^4.9.6",
     "dotenv": "^16.4.5",
-    "ethers": "^5.7.2",
+    "ethers": "^6.13.2",
     "hardhat": "^2.9.1"
   },
   "devDependencies": {
