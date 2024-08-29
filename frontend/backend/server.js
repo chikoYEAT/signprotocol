@@ -2,8 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
-const workOrderRoutes = require('./routes/workOrderRoutes');
+const workOrderRoutes = require('./routes/workOrderRoutes'); // Import workOrder routes here
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -12,7 +13,7 @@ dotenv.config();
 const app = express();
 
 // Connect to MongoDB
-connectDB();
+connectDB(); // Assuming connectDB handles your MongoDB connection
 
 // Middleware setup
 app.use(cors());
@@ -20,7 +21,7 @@ app.use(express.json()); // For parsing application/json
 
 // Define routes
 app.use('/api/auth', authRoutes); // Authentication routes (login, signup)
-app.use('/api/workorders', workOrderRoutes); // Work order routes (create, approve, fetch)
+app.use('/api/work-orders', workOrderRoutes); // Work Order routes
 
 // Error handling middleware (optional)
 app.use((err, req, res, next) => {

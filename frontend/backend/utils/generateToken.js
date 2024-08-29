@@ -1,10 +1,6 @@
 const jwt = require('jsonwebtoken');
+const JWT_SECRET = 'lamodedkekw';
 
-// Hardcoded JWT secret key
-const JWT_SECRET = 'lamodedkekw'; // Replace with your actual secret key
-
-const generateToken = (userId) => {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '1h' });
-};
-
-module.exports = generateToken;
+// Simulate generating a token for a user
+const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+console.log('Generated Token:', token);

@@ -1,26 +1,18 @@
+// models/WorkOrder.js
 const mongoose = require('mongoose');
 
 const workOrderSchema = new mongoose.Schema({
-  description: {
-    type: String,
-    required: true
-  },
-  details: {
-    type: String
-  },
+  workOrderTitle: String,
+  description: String,
+  assignedTo: String,
   status: {
     type: String,
-    enum: ['Pending', 'Approved', 'Completed'],
+    enum: ['Pending', 'In Progress', 'Completed'],
     default: 'Pending'
   },
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  approvedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 

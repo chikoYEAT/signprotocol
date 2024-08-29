@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { BrowserRouter as Router, Route, Routes, Switch, Link } from 'react-router-dom';
+import axios from 'axios';
+import { BrowserRouter as Router, Route, Routes, Switch, Link, Navigate  } from 'react-router-dom';
 import WorkOrderManagementABI from './abis/WorkOrderManagement.json';
 import { 
   createWorkOrder, 
@@ -28,12 +29,10 @@ function Dashboard({ walletConnected, handleConnectWallet, contract, account }) 
       return;
     }
     try {
-      // Grant the DEPARTMENT_ROLE to the current account
       const tx1 = await contract.grantDepartmentRole(account);
       await tx1.wait();
       console.log('DEPARTMENT_ROLE granted to', account);
 
-      // Now create a work order
       const tx2 = await contract.createWorkOrder(workOrderDetails);
       await tx2.wait();
       console.log('Work order created successfully');
@@ -113,20 +112,24 @@ function Dashboard({ walletConnected, handleConnectWallet, contract, account }) 
       setErrorMessage('Error placing bid: ' + error.message);
     }
   };
-
   const handleFinalizeAuction = async () => {
-    if (!walletConnected) {
-      setErrorMessage('Please connect your wallet first.');
-      return;
-    }
     try {
       await finalizeAuction(auctionId);
-      alert('Auction Finalized');
-      setErrorMessage('');
+      // Call the API to create a work order after finalizing the auction
+      const response = await axios.post('http://localhost:5000/api/work-orders', {
+        title: `Work Order for Auction ${auctionId}`,
+        description: `Details of the work order created after finalizing auction ${auctionId}`,
+        createdBy: account
+      });
+      alert('Auction Finalized and Work Order Created');
     } catch (error) {
+      console.error('Error finalizing auction:', error.message);
       setErrorMessage('Error finalizing auction: ' + error.message);
     }
   };
+
+
+
   return (
     <div className="p-4">
       <button 
@@ -141,88 +144,93 @@ function Dashboard({ walletConnected, handleConnectWallet, contract, account }) 
 
       <h1 className="text-2xl font-bold mb-4">Work Order Management</h1>
 
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold mb-2">Create Work Order</h2>
-        <input 
-          type="text" 
-          value={workOrderDetails} 
-          onChange={(e) => setWorkOrderDetails(e.target.value)} 
-          placeholder="Enter work order details"
-          className="border p-2 mr-2"
-        />
-        <button onClick={handleCreateWorkOrder} className="px-4 py-2 bg-green-500 text-white rounded">Create</button>
-        <button onClick={handleGrantRoleAndCreateWorkOrder} className="ml-2 px-4 py-2 bg-yellow-500 text-white rounded">Grant Role & Create</button>
-      </div>
-      <div>
-        <h2>Approve Work Order</h2>
-        <input 
-          type="text" 
-          value={workOrderId} 
-          onChange={(e) => setWorkOrderId(e.target.value)} 
-          placeholder="Enter work order ID"
-        />
-        <button onClick={handleApproveWorkOrder}>Approve</button>
-      </div>
+      {walletConnected ? (
+        <>
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold mb-2">Create Work Order</h2>
+            <input 
+              type="text" 
+              value={workOrderDetails} 
+              onChange={(e) => setWorkOrderDetails(e.target.value)} 
+              placeholder="Enter work order details"
+              className="border p-2 mr-2"
+            />
+            <button onClick={handleCreateWorkOrder} className="px-4 py-2 bg-green-500 text-white rounded">Create</button>
+            <button onClick={handleGrantRoleAndCreateWorkOrder} className="ml-2 px-4 py-2 bg-yellow-500 text-white rounded">Grant Role & Create</button>
+          </div>
+          <div>
+            <h2>Approve Work Order</h2>
+            <input 
+              type="text" 
+              value={workOrderId} 
+              onChange={(e) => setWorkOrderId(e.target.value)} 
+              placeholder="Enter work order ID"
+            />
+            <button onClick={handleApproveWorkOrder}>Approve</button>
+          </div>
 
-      <div>
-        <h2>Issue Certificate</h2>
-        <input 
-          type="text" 
-          value={workOrderId} 
-          onChange={(e) => setWorkOrderId(e.target.value)} 
-          placeholder="Enter work order ID"
-        />
-        <input 
-          type="text" 
-          value={certificateURL} 
-          onChange={(e) => setCertificateURL(e.target.value)} 
-          placeholder="Enter certificate URL"
-        />
-        <button onClick={handleIssueCertificate}>Issue Certificate</button>
-      </div>
+          <div>
+            <h2>Issue Certificate</h2>
+            <input 
+              type="text" 
+              value={workOrderId} 
+              onChange={(e) => setWorkOrderId(e.target.value)} 
+              placeholder="Enter work order ID"
+            />
+            <input 
+              type="text" 
+              value={certificateURL} 
+              onChange={(e) => setCertificateURL(e.target.value)} 
+              placeholder="Enter certificate URL"
+            />
+            <button onClick={handleIssueCertificate}>Issue Certificate</button>
+          </div>
 
-      <div>
-        <h2>Create Auction</h2>
-        <input 
-          type="text" 
-          value={auctionDetails} 
-          onChange={(e) => setAuctionDetails(e.target.value)} 
-          placeholder="Enter auction details"
-        />
-        <button onClick={handleCreateAuction}>Create Auction</button>
-      </div>
+          <div>
+            <h2>Create Auction</h2>
+            <input 
+              type="text" 
+              value={auctionDetails} 
+              onChange={(e) => setAuctionDetails(e.target.value)} 
+              placeholder="Enter auction details"
+            />
+            <button onClick={handleCreateAuction}>Create Auction</button>
+          </div>
 
-      <div>
-        <h2>Place Bid</h2>
-        <input 
-          type="text" 
-          value={auctionId} 
-          onChange={(e) => setAuctionId(e.target.value)} 
-          placeholder="Enter auction ID"
-        />
-        <input 
-          type="number" 
-          value={bidAmount} 
-          onChange={(e) => setBidAmount(e.target.value)} 
-          placeholder="Enter bid amount"
-        />
-        <button onClick={handlePlaceBid}>Place Bid</button>
-      </div>
+          <div>
+            <h2>Place Bid</h2>
+            <input 
+              type="text" 
+              value={auctionId} 
+              onChange={(e) => setAuctionId(e.target.value)} 
+              placeholder="Enter auction ID"
+            />
+            <input 
+              type="number" 
+              value={bidAmount} 
+              onChange={(e) => setBidAmount(e.target.value)} 
+              placeholder="Enter bid amount"
+            />
+            <button onClick={handlePlaceBid}>Place Bid</button>
+          </div>
 
-      <div>
-        <h2>Finalize Auction</h2>
-        <input 
-          type="text" 
-          value={auctionId} 
-          onChange={(e) => setAuctionId(e.target.value)} 
-          placeholder="Enter auction ID"
-        />
-        <button onClick={handleFinalizeAuction}>Finalize Auction</button>
-      </div>
+          <div>
+            <h2>Finalize Auction</h2>
+            <input 
+              type="text" 
+              value={auctionId} 
+              onChange={(e) => setAuctionId(e.target.value)} 
+              placeholder="Enter auction ID"
+            />
+            <button onClick={handleFinalizeAuction}>Finalize Auction</button>
+          </div>
+        </>
+      ) : (
+        <div className="text-gray-500">Connect your wallet to perform actions.</div>
+      )}
     </div>
   );
 }
-
 
 function Home() {
   return (
@@ -235,9 +243,24 @@ function Home() {
 
 function App() {
   const [walletConnected, setWalletConnected] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [contract, setContract] = useState(null);
   const [account, setAccount] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    const checkAuthentication = () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        // Verify token validity (e.g., by sending a request to the server)
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkAuthentication();
+  }, []);
 
   useEffect(() => {
     const checkWalletConnection = async () => {
@@ -245,7 +268,12 @@ function App() {
         try {
           const accounts = await window.ethereum.request({ method: 'eth_accounts' });
           if (accounts.length > 0) {
-            await handleConnectWallet();
+            setAccount(accounts[0]);
+            setWalletConnected(true);
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const workOrderContract = new ethers.Contract('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', WorkOrderManagementABI.abi, signer);
+            setContract(workOrderContract);
           }
         } catch (error) {
           console.error("Failed to check wallet connection:", error);
@@ -278,33 +306,35 @@ function App() {
     }
   };
 
+  const handleLogin = () => {
+    setIsLoggedIn(true); // Update login state after successful login
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Clear the token from local storage
+    setIsLoggedIn(false); // Update login state
+  };
+
   return (
     <Router>
       <div>
         <nav>
           <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/login">Login</Link>
-            </li>
-            <li>
-              <Link to="/dashboard">Dashboard</Link>
-            </li>
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/login">Login</Link></li>
+            {isLoggedIn && <li><Link to="/dashboard">Dashboard</Link></li>}
+            {isLoggedIn && <li><button onClick={handleLogout}>Logout</button></li>}
           </ul>
         </nav>
 
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={
-            <Dashboard 
-              walletConnected={walletConnected}
-              handleConnectWallet={handleConnectWallet}
-              contract={contract}
-              account={account}
-            />
-          } />
+          <Route path="/login" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />} />
+          <Route path="/dashboard" element={isLoggedIn ? <Dashboard 
+            walletConnected={walletConnected}
+            handleConnectWallet={handleConnectWallet}
+            contract={contract}
+            account={account}
+          /> : <Navigate to="/login" />} />
           <Route path="/" element={<Home />} />
         </Routes>
       </div>

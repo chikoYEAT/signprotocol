@@ -1,22 +1,19 @@
 const WorkOrder = require('../models/workOrderModel');
 
-// Create a new work order
 exports.createWorkOrder = async (req, res) => {
-  const { description, details } = req.body;
-
   try {
+    const { title, description, createdBy } = req.body;
     const newWorkOrder = new WorkOrder({
+      title,
       description,
-      details,
-      status: 'Pending', // Default status
-      createdBy: req.user.id,
+      createdBy,
+      status: 'pending',
     });
 
     await newWorkOrder.save();
-
     res.status(201).json({ message: 'Work order created successfully', workOrder: newWorkOrder });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: 'Error creating work order', error: error.message });
   }
 };
 

@@ -1,16 +1,15 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 
-// Hardcoded JWT secret key
-const JWT_SECRET = 'lamodedkekw'; // Replace with your actual secret key
+const JWT_SECRET = process.env.JWT_SECRET; // Ensure this is set in your .env file
 
 const authenticate = async (req, res, next) => {
-  const token = req.header('Authorization').replace('Bearer ', '');
+  const token = req.header('Authorization')?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ message: 'No token provided' });
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.userId);
+    const user = await User.findById(decoded.userId); // Adjust according to your payload
     if (!user) return res.status(401).json({ message: 'User not found' });
 
     req.user = user;
@@ -21,11 +20,4 @@ const authenticate = async (req, res, next) => {
   }
 };
 
-const authorize = (role) => (req, res, next) => {
-  if (req.user.role !== role) {
-    return res.status(403).json({ message: 'Access denied' });
-  }
-  next();
-};
-
-module.exports = { authenticate, authorize };
+module.exports = { authenticate };

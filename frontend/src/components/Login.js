@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const Login = () => {
+const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -13,10 +13,10 @@ const Login = () => {
         username,
         password
       });
-      localStorage.setItem('token', response.data.token);
-      // Redirect to dashboard or home page
+      localStorage.setItem('token', response.data.token); // Store token in local storage
+      onLogin(); // Notify parent component of successful login
     } catch (error) {
-      setError(error.response.data.message || 'An error occurred');
+      setError(error.response?.data?.message || 'An error occurred');
     }
   };
 

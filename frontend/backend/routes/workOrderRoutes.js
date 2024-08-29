@@ -1,21 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const { createWorkOrder, approveWorkOrder, getAllWorkOrders, getWorkOrderById } = require('../controllers/workOrderController');
-const { authenticate, authorize } = require('../middlewares/authMiddleware');
+const WorkOrder = require('../models/workOrderModel'); // Import the model
 
-// Middleware to protect routes
-router.use(authenticate);
+// Define your routes here
+router.post('/', async (req, res) => {
+  try {
+    // Create a new work order using data from the request body
+    const workOrder = new WorkOrder({
+      workOrderTitle: req.body.workOrderTitle,
+      description: req.body.description,
+      assignedTo: req.body.assignedTo,
+      status: req.body.status
+    });
 
-// Route to create a work order
-router.post('/', authorize('admin'), createWorkOrder);
+    // Save the work order to the database
+    await workOrder.save();
 
-// Route to approve a work order
-router.patch('/:id/approve', authorize('admin'), approveWorkOrder);
-
-// Route to get all work orders (can be filtered based on role)
-router.get('/', getAllWorkOrders);
-
-// Route to get a specific work order by ID
-router.get('/:id', getWorkOrderById);
+    // Respond with the created work order
+    res.status(201).json(workOrder);
+  } catch (error) {
+    // Handle errors and respond with an error message
+    res.status(500).json({ message: 'Failed to create work order', error });
+  }
+});
 
 module.exports = router;
