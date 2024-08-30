@@ -27,33 +27,49 @@ const Login = ({ onLogin }) => {
   };
 
   return (
-    <div className="login-container" style={{paddingTop:'80px'}}>
-      <h2>Login</h2>
-      {error && <p className="error">{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
+    <section className=" min-h-screen flex items-center justify-center px-4 py-8 bg-[#2a2a2a]" style={{background:'#2a2a2a'}}>
+      <div className="w-full max-w-md mx-auto rounded-lg shadow-md dark:border md:mt-0 bg-white dark:bg-black dark:border-gray-700 " style={{background:'rgb(26, 26, 26)', borderRadius: '14px'}}>
+        <div className="p-6 space-y-4 md:space-y-6" >
+          <h1 className="text-2xl font-bold leading-tight tracking-tight text-gray-900 md:text-3xl dark:text-white" style={{background:'rgb(26, 26, 26)'}}>
+            Login
+          </h1>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <hr className="my-4" />
+          <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
+              <input 
+                type="text" 
+                value={username} 
+                onChange={(e) => setUsername(e.target.value)} 
+                id="username" 
+                className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-zinc-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                placeholder="Enter your username..." 
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
+              <input 
+                type="password" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                id="password" 
+                className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-zinc-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                placeholder="Enter your password..." 
+                required
+              />
+            </div>
+            <button 
+              type="submit" 
+              className="w-full focus:outline-none text-white bg-purple-900 hover:bg-purple-700 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-900 dark:hover:bg-purple-700"
+            >
+              Login
+            </button>
+          </form>
         </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
-    </div>
+      </div>
+    </section>
   );
 };
 

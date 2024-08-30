@@ -16,6 +16,7 @@ import {
 import Login from './components/Login';
 import Documentation from './components/documentation';
 
+
 function Dashboard({ walletConnected, handleConnectWallet, contract, account,username }) {
   const [workOrderDetails, setWorkOrderDetails] = useState('');
   const [workOrderId, setWorkOrderId] = useState('');
@@ -257,11 +258,193 @@ const Button = ({ children, className = '', ...props }) => (
 
 function Home() {
   return (
-    <div style={{paddingTop:'80px'}}>
-      <h1>Welcome to Work Order Management</h1>
-      <p>Please login or connect your wallet to continue.</p>
+    <div className="flex flex-col min-h-screen bg-[#1a1a1a] text-white">
+      <header className="px-4 lg:px-6 h-14 flex items-center justify-between">
+        <Link href="#" className="flex items-center justify-center">
+          <MountainIcon className="h-6 w-6 text-[#9370DB]" />
+          <span className="sr-only">Acme Inc</span>
+        </Link>
+        <nav className="hidden lg:flex gap-4 sm:gap-6">
+          <Link href="#" className="text-sm font-medium hover:underline underline-offset-4 text-[#9370DB]">Features</Link>
+          <Link href="#" className="text-sm font-medium hover:underline underline-offset-4 text-[#9370DB]">Pricing</Link>
+          <Link href="#" className="text-sm font-medium hover:underline underline-offset-4 text-[#9370DB]">About</Link>
+          <Link href="#" className="text-sm font-medium hover:underline underline-offset-4 text-[#9370DB]">Contact</Link>
+        </nav>
+      </header>
+
+      <main className="flex-1 flex flex-col items-center justify-center px-4 md:px-6 py-12 md:py-24 lg:py-32">
+        <div className="max-w-md text-center space-y-4">
+          <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl">Elevate Your Digital Presence</h1>
+          <p className="text-gray-400">Unlock the power of our cutting-edge solutions to transform your online experience.</p>
+          <a href="/login" className="inline-flex h-10 items-center justify-center rounded-md bg-[#9370DB] px-8 text-sm font-medium text-white shadow transition-colors hover:bg-[#8257c8]">
+            Get Started
+          </a>
+        </div>
+      </main>
+
+      <section className="flex-1 flex flex-col items-center justify-center px-4 md:px-6 py-12 md:py-24 lg:py-32 bg-[#2a2a2a]">
+        <div className="container px-4 md:px-6 space-y-8">
+          <div className="text-center space-y-4">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Features That Matter</h2>
+            <p className="text-gray-400">Discover the tools and features that will elevate your digital presence.</p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <FeatureCard icon={<ZapIcon />} title="Blazing Fast" description="Our platform delivers lightning-fast performance, ensuring seamless user experiences." />
+            <FeatureCard icon={<ShieldIcon />} title="Secure by Design" description="Robust security measures keep your data safe and your applications protected." />
+            <FeatureCard icon={<CpuIcon />} title="Scalable Solutions" description="Our platform scales seamlessly to meet your growing needs, ensuring your success." />
+          </div>
+        </div>
+      </section>
+
+      <section className="flex-1 flex flex-col items-center justify-center px-4 md:px-6 py-12 md:py-24 lg:py-32">
+        <div className="container px-4 md:px-6 space-y-8">
+          <div className="text-center space-y-4">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl" style={{display:'flex',justifyContent:'center'}}>What Our Customers Say</h2>
+            <p className="text-gray-400">Hear from the people who have experienced our solutions firsthand.</p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <TestimonialCard name="John Doe" title="CEO, Acme Inc." message="The platform has been a game-changer for our business. The features and performance are unmatched." />
+            <TestimonialCard name="Jane Smith" title="Marketing Manager, Acme Inc." message="The platform has been a game-changer for our business. The features and performance are unmatched." />
+            <TestimonialCard name="Bob Johnson" title="IT Manager, Acme Inc." message="The platform has been a game-changer for our business. The features and performance are unmatched." />
+          </div>
+        </div>
+      </section>
+
+      <section className="flex-1 flex flex-col items-center justify-center px-4 md:px-6 py-12 md:py-24 lg:py-32 bg-[#2a2a2a]">
+        <div className="container px-4 md:px-6 space-y-8">
+          <div className="text-center space-y-4">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Get in Touch</h2>
+            <p className="text-gray-400">Have a question or want to learn more? Contact us today.</p>
+          </div>
+          <form className="mx-auto max-w-md space-y-4">
+            <input type="text" placeholder="Name" className="w-full px-3 py-2 bg-[#1a1a1a] border border-gray-700 rounded-md text-white focus:outline-none focus:border-[#9370DB]" />
+            <input type="email" placeholder="Email" className="w-full px-3 py-2 bg-[#1a1a1a] border border-gray-700 rounded-md text-white focus:outline-none focus:border-[#9370DB]" />
+            <textarea placeholder="Message" rows={4} className="w-full px-3 py-2 bg-[#1a1a1a] border border-gray-700 rounded-md text-white focus:outline-none focus:border-[#9370DB]" />
+            <button type="submit" className="w-full px-4 py-2 bg-[#9370DB] text-white rounded-md hover:bg-[#8257c8] focus:outline-none">
+              Submit
+            </button>
+          </form>
+        </div>
+        
+      </section>
+            <footer className="border-t border-gray-800 pt-4 mt-8 p-8">
+                <p className="text-gray-500 text-sm">
+                     {new Date().getFullYear()} blockmosaic . A Sign Protocol.
+                </p>
+            </footer>
     </div>
   );
+}
+
+function FeatureCard({ icon, title, description }) {
+  return (
+    <div className="bg-[#1a1a1a] rounded-lg p-6 space-y-2">
+      <div className="h-8 w-8 text-[#9370DB]">{icon}</div>
+      <h3 className="text-xl font-bold">{title}</h3>
+      <p className="text-gray-400">{description}</p>
+    </div>
+  )
+}
+
+function TestimonialCard({ name, title, message }) {
+  return (
+    <div className="bg-[#1a1a1a] rounded-lg p-6 space-y-4">
+      <div className="flex items-center space-x-4">
+        <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-white">{name.charAt(0)}</div>
+        <div>
+          <h4 className="font-bold">{name}</h4>
+          <p className="text-gray-400">{title}</p>
+        </div>
+      </div>
+      <p className="text-gray-400">{message}</p>
+    </div>
+  )
+}
+
+
+function MountainIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
+    </svg>
+  )
+}
+
+function ShieldIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.68 0C7.5 20.5 4 18 4 13V5.21a2 2 0 0 1 1.35-1.89l6-2a2 2 0 0 1 1.3 0l6 2A2 2 0 0 1 20 5.21V13z" />
+    </svg>
+  )
+}
+
+function ZapIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+  )
+}
+
+function CpuIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="4" y="4" width="16" height="16" rx="2" ry="2" />
+      <rect x="9" y="9" width="6" height="6" />
+      <path d="M9 1v2" />
+      <path d="M15 1v2" />
+      <path d="M9 21v2" />
+      <path d="M15 21v2" />
+      <path d="M20 9h2" />
+      <path d="M20 15h2" />
+      <path d="M2 9h2" />
+      <path d="M2 15h2" />
+    </svg>
+  )
 }
 
 function App() {
