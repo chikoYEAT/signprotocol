@@ -17,6 +17,30 @@ exports.createWorkOrder = async (req, res) => {
   }
 };
 
+
+exports.updateWorkOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;  // ID of the work order to update
+    const { status } = req.body;  // New status to set
+
+    // Find the work order by ID and update status
+    const updatedWorkOrder = await WorkOrder.findByIdAndUpdate(
+      id,
+      { status: status },
+      { new: true }  // Return the updated document
+    );
+
+    if (!updatedWorkOrder) {
+      return res.status(404).json({ message: 'Work order not found' });
+    }
+
+    // Respond with the updated work order
+    res.json({ message: 'Work order status updated successfully', workOrder: updatedWorkOrder });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating work order status', error: error.message });
+  }
+};
+
 // Approve a work order
 exports.approveWorkOrder = async (req, res) => {
   const { id } = req.params;
@@ -40,6 +64,7 @@ exports.approveWorkOrder = async (req, res) => {
     res.status(500).json({ message: 'Server error', error });
   }
 };
+
 
 // Retrieve all work orders
 exports.getAllWorkOrders = async (req, res) => {

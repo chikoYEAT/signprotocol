@@ -3,6 +3,8 @@ import { ethers } from 'ethers';
 import axios from 'axios';
 import { BrowserRouter as Router, Route, Routes, Switch, Link, Navigate  } from 'react-router-dom';
 import WorkOrderManagementABI from './abis/WorkOrderManagement.json';
+import WorkOrder from './components/workOrder';
+import WorkOrderAdmin from './components/workOrderAdmin';
 import { 
   createWorkOrder, 
   approveWorkOrder, 
@@ -252,13 +254,15 @@ function App() {
   const [contract, setContract] = useState(null);
   const [account, setAccount] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [role, setRole] = useState('');
 
   useEffect(() => {
     const checkAuthentication = () => {
       const token = localStorage.getItem('token');
+      const storedRole = localStorage.getItem('role');
       if (token) {
-        // Verify token validity (e.g., by sending a request to the server)
         setIsLoggedIn(true);
+        setRole(storedRole || ''); // Set role from localStorage
       } else {
         setIsLoggedIn(false);
       }
@@ -313,11 +317,15 @@ function App() {
 
   const handleLogin = () => {
     setIsLoggedIn(true); // Update login state after successful login
+    const storedRole = localStorage.getItem('role');
+    setRole(storedRole || ''); // Set role from localStorage
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token'); // Clear the token from local storage
+    localStorage.removeItem('role'); // Clear the role from local storage
     setIsLoggedIn(false); // Update login state
+    setRole(''); // Clear role state
   };
 
   return (
@@ -328,18 +336,28 @@ function App() {
             <li><Link to="/">Home</Link></li>
             <li><Link to="/login">Login</Link></li>
             {isLoggedIn && <li><Link to="/dashboard">Dashboard</Link></li>}
+            {isLoggedIn && <li><Link to="/workorder">WorkOrder</Link></li>}
+            {isLoggedIn && role === 'admin' && <li><Link to="/workorder-admin">WorkOrder Admin</Link></li>}
             {isLoggedIn && <li><button onClick={handleLogout}>Logout</button></li>}
           </ul>
         </nav>
 
         <Routes>
           <Route path="/login" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />} />
-          <Route path="/dashboard" element={isLoggedIn ? <Dashboard 
-            walletConnected={walletConnected}
-            handleConnectWallet={handleConnectWallet}
-            contract={contract}
-            account={account}
-          /> : <Navigate to="/login" />} />
+          <Route path="/dashboard" element={isLoggedIn ? (
+            <Dashboard 
+              walletConnected={walletConnected}
+              handleConnectWallet={handleConnectWallet}
+              contract={contract}
+              account={account}
+            />
+          ) : <Navigate to="/login" />} />
+          <Route path="/workorder" element={isLoggedIn ? (
+            <WorkOrder />
+          ) : <Navigate to="/login" />} />
+          <Route path="/workorder-admin" element={isLoggedIn && role === 'admin' ? (
+            <WorkOrderAdmin />
+          ) : <Navigate to="/login" />} />
           <Route path="/" element={<Home />} />
         </Routes>
       </div>

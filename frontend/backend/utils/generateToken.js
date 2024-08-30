@@ -1,6 +1,5 @@
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = 'lamodedkekw';
+const JWT_SECRET="lamodedkekw" ;
 
-// Simulate generating a token for a user
-const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
-console.log('Generated Token:', token);
+const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });

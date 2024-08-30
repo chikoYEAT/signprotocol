@@ -21,7 +21,7 @@ app.use(express.json()); // For parsing application/json
 
 // Define routes
 app.use('/api/auth', authRoutes); // Authentication routes (login, signup)
-app.use('/api/work-orders', workOrderRoutes); // Work Order routes
+app.use('/api/work-orders', workOrderRoutes);
 
 // Error handling middleware (optional)
 app.use((err, req, res, next) => {

@@ -23,7 +23,7 @@ const workOrderSchema = new mongoose.Schema({
     required: true
   },
   createdBy: {
-    type: String, // Assuming `account` is a string; adjust if necessary
+    type: String, 
     required: true
   },
   createdAt: {

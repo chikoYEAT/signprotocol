@@ -13,12 +13,14 @@ const Login = ({ onLogin }) => {
         username,
         password
       });
+
+      const { token, user } = response.data; // Extract user object
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('username', user.username); // Store username from user object
+      localStorage.setItem('role', user.role); // Store role from user object
       
-      // Store token and username in local storage
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('username', username); // Store username in local storage
-      
-      onLogin(); // Notify parent component of successful login
+      onLogin(user.role); // Pass role to the onLogin callback
     } catch (error) {
       setError(error.response?.data?.message || 'An error occurred');
     }

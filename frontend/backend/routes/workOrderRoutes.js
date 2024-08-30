@@ -1,6 +1,12 @@
 const express = require('express');
+require('dotenv').config();
 const router = express.Router();
 const WorkOrder = require('../models/workOrderModel'); // Adjust the path if necessary
+const { authenticate } = require('../middlewares/authMiddleware'); 
+const { 
+  createWorkOrder, 
+  updateWorkOrderStatus // Add this line
+} = require('../controllers/workOrderController');
 
 router.post('/', async (req, res) => {
   try {
@@ -35,5 +41,7 @@ router.get('/', async (req, res) => {
 
 /*http://localhost:5000/api/work-orders?username=nsut.ac.in*/
 /*http://localhost:5000/api/work-orders*/
+
+router.patch('/:id/status', authenticate, updateWorkOrderStatus);
 
 module.exports = router;
