@@ -1,0 +1,64 @@
+
+body {
+    background-color: #121212; /* Dark background for modern theme */
+    color: #fff; /* White text for contrast */
+    font-family: 'Roboto', sans-serif; /* Modern font */
+}
+
+.workorder-admin {
+    max-width: 600px;
+    margin: 100px auto; /* Center the component */
+    padding: 2rem;
+    background-color: #1e1e1e; /* Darker gray background */
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Subtle shadow for depth */
+}
+
+h2 {
+    color: #9B59B6; /* Purple accent color */
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.admin-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.admin-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #bbb; /* Light gray for labels */
+}
+
+.admin-form input, .admin-form select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #9B59B6; /* Purple border */
+    background-color: #2c2c2c; /* Dark input background */
+    color: white;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.admin-form input:focus, .admin-form select:focus {
+    border-color: #8e44ad; /* Slightly darker purple on focus */
+}
+
+.approve-btn {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #9B59B6; /* Purple button background */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.approve-btn:hover {
+    background-color: #8e44ad; /* Darker purple on hover */
+}

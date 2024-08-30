@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import axios from 'axios';
-import { BrowserRouter as Router, Route, Routes, Switch, Link, Navigate  } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link, Navigate  } from 'react-router-dom';
 import WorkOrderManagementABI from './abis/WorkOrderManagement.json';
 import WorkOrder from './components/workOrder';
 import WorkOrderAdmin from './components/workOrderAdmin';
+import Navbar from './components/Navbar'
 import { 
-  createWorkOrder, 
   approveWorkOrder, 
-  issueCertificate, 
-  connectWallet,
+  issueCertificate,
   createAuction,
   placeBid,
   finalizeAuction
 } from './contractIntegration';
 import Login from './components/Login';
+import Documentation from './components/documentation';
 
 function Dashboard({ walletConnected, handleConnectWallet, contract, account,username }) {
   const [workOrderDetails, setWorkOrderDetails] = useState('');
@@ -134,114 +134,130 @@ function Dashboard({ walletConnected, handleConnectWallet, contract, account,use
     }
   };
 
+ return (
+    <div className="min-h-screen bg-black text-white p-4 sm:p-6 font-sans" style={{paddingTop:'80px'}}>
+      <div className="max-w-4xl mx-auto">
+        <button 
+          onClick={handleConnectWallet} 
+          disabled={walletConnected}
+          className={`w-full sm:w-auto mb-6 px-6 py-3 rounded-full text-sm font-medium ${walletConnected ? 'bg-gray-800 text-gray-400' : 'bg-purple-600 hover:bg-purple-700'} transition-colors duration-300`}
+        >
+          {walletConnected ? 'Wallet Connected' : 'Connect Wallet'}
+        </button>
 
+        {errorMessage && <div className="text-red-500 mb-6 text-center text-sm">{errorMessage}</div>}
 
+        <h1 className="text-3xl sm:text-4xl font-extrabold mb-8 text-center bg-gradient-to-r from-purple-400 to-pink-600 text-transparent bg-clip-text">Work Order Management</h1>
 
-  return (
-    <div className="p-4">
-      <button 
-        onClick={handleConnectWallet} 
-        disabled={walletConnected}
-        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
-      >
-        {walletConnected ? 'Wallet Connected' : 'Connect Wallet'}
-      </button>
-      
-      {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
+        {walletConnected ? (
+          <>
+            <Section title="Create Work Order">
+              <Input 
+                value={workOrderDetails} 
+                onChange={(e) => setWorkOrderDetails(e.target.value)} 
+                placeholder="Enter work order details"
+              />
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button onClick={handleCreateWorkOrder}>Create</Button>
+                <Button onClick={handleGrantRoleAndCreateWorkOrder} className="bg-yellow-600 hover:bg-yellow-700">Grant Role & Create</Button>
+              </div>
+            </Section>
 
-      <h1 className="text-2xl font-bold mb-4">Work Order Management</h1>
+            <Section title="Approve Work Order">
+              <Input 
+                value={workOrderId} 
+                onChange={(e) => setWorkOrderId(e.target.value)} 
+                placeholder="Enter work order ID"
+              />
+              <Button onClick={handleApproveWorkOrder} className="bg-blue-600 hover:bg-blue-700">Approve</Button>
+            </Section>
 
-      {walletConnected ? (
-        <>
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold mb-2">Create Work Order</h2>
-            <input 
-              type="text" 
-              value={workOrderDetails} 
-              onChange={(e) => setWorkOrderDetails(e.target.value)} 
-              placeholder="Enter work order details"
-              className="border p-2 mr-2"
-            />
-            <button onClick={handleCreateWorkOrder} className="px-4 py-2 bg-green-500 text-white rounded">Create</button>
-            <button onClick={handleGrantRoleAndCreateWorkOrder} className="ml-2 px-4 py-2 bg-yellow-500 text-white rounded">Grant Role & Create</button>
-          </div>
-          <div>
-            <h2>Approve Work Order</h2>
-            <input 
-              type="text" 
-              value={workOrderId} 
-              onChange={(e) => setWorkOrderId(e.target.value)} 
-              placeholder="Enter work order ID"
-            />
-            <button onClick={handleApproveWorkOrder}>Approve</button>
-          </div>
+            <Section title="Issue Certificate">
+              <Input 
+                value={workOrderId} 
+                onChange={(e) => setWorkOrderId(e.target.value)} 
+                placeholder="Enter work order ID"
+              />
+              <Input 
+                value={certificateURL} 
+                onChange={(e) => setCertificateURL(e.target.value)} 
+                placeholder="Enter certificate URL"
+              />
+              <Button onClick={handleIssueCertificate}>Issue Certificate</Button>
+            </Section>
 
-          <div>
-            <h2>Issue Certificate</h2>
-            <input 
-              type="text" 
-              value={workOrderId} 
-              onChange={(e) => setWorkOrderId(e.target.value)} 
-              placeholder="Enter work order ID"
-            />
-            <input 
-              type="text" 
-              value={certificateURL} 
-              onChange={(e) => setCertificateURL(e.target.value)} 
-              placeholder="Enter certificate URL"
-            />
-            <button onClick={handleIssueCertificate}>Issue Certificate</button>
-          </div>
+            <Section title="Create Auction">
+              <Input 
+                value={auctionDetails} 
+                onChange={(e) => setAuctionDetails(e.target.value)} 
+                placeholder="Enter auction details"
+              />
+              <Button onClick={handleCreateAuction} className="bg-teal-600 hover:bg-teal-700">Create Auction</Button>
+            </Section>
 
-          <div>
-            <h2>Create Auction</h2>
-            <input 
-              type="text" 
-              value={auctionDetails} 
-              onChange={(e) => setAuctionDetails(e.target.value)} 
-              placeholder="Enter auction details"
-            />
-            <button onClick={handleCreateAuction}>Create Auction</button>
-          </div>
+            <Section title="Place Bid">
+              <Input 
+                value={auctionId} 
+                onChange={(e) => setAuctionId(e.target.value)} 
+                placeholder="Enter auction ID"
+              />
+              <Input 
+                type="number" 
+                value={bidAmount} 
+                onChange={(e) => setBidAmount(e.target.value)} 
+                placeholder="Enter bid amount"
+              />
+              <Button onClick={handlePlaceBid} className="bg-indigo-600 hover:bg-indigo-700">Place Bid</Button>
+            </Section>
 
-          <div>
-            <h2>Place Bid</h2>
-            <input 
-              type="text" 
-              value={auctionId} 
-              onChange={(e) => setAuctionId(e.target.value)} 
-              placeholder="Enter auction ID"
-            />
-            <input 
-              type="number" 
-              value={bidAmount} 
-              onChange={(e) => setBidAmount(e.target.value)} 
-              placeholder="Enter bid amount"
-            />
-            <button onClick={handlePlaceBid}>Place Bid</button>
-          </div>
-
-          <div>
-            <h2>Finalize Auction</h2>
-            <input 
-              type="text" 
-              value={auctionId} 
-              onChange={(e) => setAuctionId(e.target.value)} 
-              placeholder="Enter auction ID"
-            />
-            <button onClick={handleFinalizeAuction}>Finalize Auction</button>
-          </div>
-        </>
-      ) : (
-        <div className="text-gray-500">Connect your wallet to perform actions.</div>
-      )}
+            <Section title="Finalize Auction">
+              <Input 
+                value={auctionId} 
+                onChange={(e) => setAuctionId(e.target.value)} 
+                placeholder="Enter auction ID"
+              />
+              <Button onClick={handleFinalizeAuction} className="bg-red-600 hover:bg-red-700">Finalize Auction</Button>
+            </Section>
+          </>
+        ) : (
+          <div className="text-gray-500 text-center">Connect your wallet to perform actions.</div>
+        )}
+      </div>
+      <footer className="border-t border-gray-800 pt-4 mt-8">
+                <p className="text-gray-500 text-sm">
+                     {new Date().getFullYear()} blockmosaic . A Sign Protocol.
+                </p>
+            </footer>
     </div>
   );
-}
+};
+
+const Section = ({ title, children }) => (
+  <div className="mb-8">
+    <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-purple-400">{title}</h2>
+    {children}
+  </div>
+);
+
+const Input = ({ ...props }) => (
+  <input 
+    {...props}
+    className="border border-gray-700 bg-gray-800 text-white p-3 rounded-md mb-4 w-full focus:outline-none focus:ring-2 focus:ring-purple-600"
+  />
+);
+
+const Button = ({ children, className = '', ...props }) => (
+  <button 
+    {...props}
+    className={`px-6 py-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors duration-300 text-sm font-medium ${className}`}
+  >
+    {children}
+  </button>
+);
 
 function Home() {
   return (
-    <div>
+    <div style={{paddingTop:'80px'}}>
       <h1>Welcome to Work Order Management</h1>
       <p>Please login or connect your wallet to continue.</p>
     </div>
@@ -331,18 +347,15 @@ function App() {
   return (
     <Router>
       <div>
-        <nav>
-          <ul>
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/login">Login</Link></li>
-            {isLoggedIn && <li><Link to="/dashboard">Dashboard</Link></li>}
-            {isLoggedIn && <li><Link to="/workorder">WorkOrder</Link></li>}
-            {isLoggedIn && role === 'admin' && <li><Link to="/workorder-admin">WorkOrder Admin</Link></li>}
-            {isLoggedIn && <li><button onClick={handleLogout}>Logout</button></li>}
-          </ul>
-        </nav>
-
-        <Routes>
+        <Navbar
+          isLoggedIn={isLoggedIn}
+          role={role}
+          handleLogout={handleLogout}
+          walletConnected={walletConnected}
+          handleConnectWallet={handleConnectWallet}
+        />
+        <Routes style={{paddingTop:'80px'}}>
+          <Route path='/docs' element={<Documentation />} />
           <Route path="/login" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />} />
           <Route path="/dashboard" element={isLoggedIn ? (
             <Dashboard 

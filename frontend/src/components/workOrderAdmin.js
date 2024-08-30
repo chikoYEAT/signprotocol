@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './workOrderAdmin.css'; // Import the CSS file
 
 const WorkOrderAdmin = () => {
   const [workOrders, setWorkOrders] = useState([]);
   const [selectedWorkOrderId, setSelectedWorkOrderId] = useState('');
-  const [username, setUsername] = useState(''); // Add state for username
+  const [username, setUsername] = useState('');
 
   const fetchWorkOrders = async () => {
     try {
@@ -28,37 +29,35 @@ const WorkOrderAdmin = () => {
     }
   }, [username]);
 
-    const handleStatusUpdate = async () => {
+  const handleStatusUpdate = async () => {
     if (!selectedWorkOrderId) {
-        alert('Please select a work order');
-        return;
+      alert('Please select a work order');
+      return;
     }
 
     try {
-        const token = localStorage.getItem('token');
-        if (!token) {
+      const token = localStorage.getItem('token');
+      if (!token) {
         console.error('No token found');
         return;
-        }
-        console.log('Token:', token); // Debug token value
-        await axios.patch(`http://localhost:5000/api/work-orders/${selectedWorkOrderId}/status`, 
+      }
+      await axios.patch(
+        `http://localhost:5000/api/work-orders/${selectedWorkOrderId}/status`, 
         { status: 'approved' }, 
         { headers: { Authorization: `Bearer ${token}` } }
-        );
-        alert('Work order status updated successfully');
-        // Refresh the work order list immediately
-        await fetchWorkOrders();
+      );
+      alert('Work order status updated successfully');
+      await fetchWorkOrders();
     } catch (error) {
-        console.error('Error updating work order status:', error);
+      console.error('Error updating work order status:', error);
     }
-    };
-
+  };
 
   return (
-    <div className="workorder-admin">
-      <h2>Work Order Administration</h2>
-      <form onSubmit={(e) => e.preventDefault()}>
-        <div>
+    <div className="workorder-admin" >
+      <h2 style={{fontSize:'30px', fontFamily:'poppins'}}>Work Order Administration</h2>
+      <form onSubmit={(e) => e.preventDefault()} className="admin-form">
+        <div className="form-group">
           <label htmlFor="username">Username:</label>
           <input
             type="text"
@@ -68,12 +67,12 @@ const WorkOrderAdmin = () => {
             required
           />
         </div>
-        <div>
+        <div className="form-group">
           <label htmlFor="workOrder">Select Work Order:</label>
-          <select 
-            id="workOrder" 
-            value={selectedWorkOrderId} 
-            onChange={(e) => setSelectedWorkOrderId(e.target.value)} 
+          <select
+            id="workOrder"
+            value={selectedWorkOrderId}
+            onChange={(e) => setSelectedWorkOrderId(e.target.value)}
             required
           >
             <option value="">Select a Work Order</option>
@@ -84,14 +83,20 @@ const WorkOrderAdmin = () => {
             ))}
           </select>
         </div>
-        <div>
-          <button type="button" onClick={handleStatusUpdate}>
+        <div className="form-group">
+          <button type="button" className="approve-btn" onClick={handleStatusUpdate}>
             Approve Work Order
           </button>
         </div>
       </form>
+      <footer className="border-t border-gray-800 pt-4 mt-8">
+                <p className="text-gray-500 text-sm">
+                     {new Date().getFullYear()} blockmosaic . A Sign Protocol.
+                </p>
+            </footer>
     </div>
   );
 };
 
 export default WorkOrderAdmin;
+
