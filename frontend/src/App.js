@@ -14,7 +14,7 @@ import {
 } from './contractIntegration';
 import Login from './components/Login';
 
-function Dashboard({ walletConnected, handleConnectWallet, contract, account }) {
+function Dashboard({ walletConnected, handleConnectWallet, contract, account,username }) {
   const [workOrderDetails, setWorkOrderDetails] = useState('');
   const [workOrderId, setWorkOrderId] = useState('');
   const [certificateURL, setCertificateURL] = useState('');
@@ -115,11 +115,15 @@ function Dashboard({ walletConnected, handleConnectWallet, contract, account }) 
   const handleFinalizeAuction = async () => {
     try {
       await finalizeAuction(auctionId);
-      // Call the API to create a work order after finalizing the auction
+      const username = localStorage.getItem('username');
+      if (!username) {
+        throw new Error('Username not found in localStorage.');
+      }
       const response = await axios.post('http://localhost:5000/api/work-orders', {
-        title: `Work Order for Auction ${auctionId}`,
+        workOrderTitle: workOrderDetails,
         description: `Details of the work order created after finalizing auction ${auctionId}`,
-        createdBy: account
+        createdBy: account,
+        username: `${username}`  // Ensure username is correctly added here
       });
       alert('Auction Finalized and Work Order Created');
     } catch (error) {
@@ -127,6 +131,7 @@ function Dashboard({ walletConnected, handleConnectWallet, contract, account }) 
       setErrorMessage('Error finalizing auction: ' + error.message);
     }
   };
+
 
 
 

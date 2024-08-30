@@ -1,27 +1,39 @@
 const express = require('express');
 const router = express.Router();
-const WorkOrder = require('../models/workOrderModel'); // Import the model
+const WorkOrder = require('../models/workOrderModel'); // Adjust the path if necessary
 
-// Define your routes here
 router.post('/', async (req, res) => {
   try {
-    // Create a new work order using data from the request body
+    const { workOrderTitle, description, assignedTo, createdBy, username } = req.body;
     const workOrder = new WorkOrder({
-      workOrderTitle: req.body.workOrderTitle,
-      description: req.body.description,
-      assignedTo: req.body.assignedTo,
-      status: req.body.status
+      workOrderTitle,
+      description,
+      assignedTo,
+      username,
+      createdBy
     });
-
-    // Save the work order to the database
     await workOrder.save();
 
-    // Respond with the created work order
-    res.status(201).json(workOrder);
+    res.status(201).send('Work order created successfully');
   } catch (error) {
-    // Handle errors and respond with an error message
-    res.status(500).json({ message: 'Failed to create work order', error });
+    console.error('Error creating work order:', error.message);
+    res.status(500).send('Error creating work order');
   }
 });
+
+router.get('/', async (req, res) => {
+  try {
+    const { username } = req.query;
+    const query = username ? { username } : {};
+    const workOrders = await WorkOrder.find(query);
+    res.status(200).json(workOrders);
+  } catch (error) {
+    console.error('Error fetching work orders:', error.message);
+    res.status(500).send('Error fetching work orders');
+  }
+});
+
+/*http://localhost:5000/api/work-orders?username=nsut.ac.in*/
+/*http://localhost:5000/api/work-orders*/
 
 module.exports = router;

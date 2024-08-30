@@ -13,7 +13,11 @@ const Login = ({ onLogin }) => {
         username,
         password
       });
-      localStorage.setItem('token', response.data.token); // Store token in local storage
+      
+      // Store token and username in local storage
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('username', username); // Store username in local storage
+      
       onLogin(); // Notify parent component of successful login
     } catch (error) {
       setError(error.response?.data?.message || 'An error occurred');

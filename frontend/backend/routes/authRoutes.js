@@ -7,4 +7,8 @@ router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.get('/user', authController.getUserData); // This route might require authentication
 
+
+/*http://localhost:5000/api/auth/login*/
+/*http://localhost:5000/api/auth/register*/
+
 module.exports = router;
