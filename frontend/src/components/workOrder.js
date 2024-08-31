@@ -16,6 +16,7 @@ const WorkOrders = () => {
           setLoading(false);
           return;
         }
+
         const response = await axios.get(
           `http://localhost:5000/api/work-orders?username=${encodeURIComponent(username)}`
         );
@@ -48,7 +49,7 @@ const WorkOrders = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white px-6 py-12" style={{paddingTop:'80px'}}>
+    <div className="min-h-screen bg-black text-white px-6 py-12" style={{ paddingTop: '80px' }}>
       <h2 className="text-3xl font-bold mb-8 text-center text-purple-500">Work Orders</h2>
       {workOrders.length > 0 ? (
         <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -63,6 +64,9 @@ const WorkOrders = () => {
               <p className="text-gray-300 mb-3">{order.description}</p>
               <p className="text-sm text-gray-400">Created by: {order.createdBy}</p>
               <p className="text-sm text-gray-400">Status: {order.status}</p>
+              <p className="text-sm text-gray-400 break-words">
+                Signed Value: {order.signed}
+              </p>
               <p className="text-sm text-gray-400">
                 Created At: {new Date(order.createdAt).toLocaleString()}
               </p>
@@ -73,10 +77,10 @@ const WorkOrders = () => {
         <p className="text-center text-gray-400">No work orders found for this user.</p>
       )}
       <footer className="border-t border-gray-800 pt-4 mt-8">
-                <p className="text-gray-500 text-sm">
-                     {new Date().getFullYear()} blockmosaic . A Sign Protocol.
-                </p>
-            </footer>
+        <p className="text-gray-500 text-sm">
+          {new Date().getFullYear()} blockmosaic . A Sign Protocol.
+        </p>
+      </footer>
     </div>
   );
 };

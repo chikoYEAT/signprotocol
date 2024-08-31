@@ -2,12 +2,13 @@ const WorkOrder = require('../models/workOrderModel');
 
 exports.createWorkOrder = async (req, res) => {
   try {
-    const { title, description, createdBy } = req.body;
+    const { title, description, createdBy,signed,pdf } = req.body;
     const newWorkOrder = new WorkOrder({
       title,
       description,
       createdBy,
       status: 'pending',
+      signed,
     });
 
     await newWorkOrder.save();

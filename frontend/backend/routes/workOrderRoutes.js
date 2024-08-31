@@ -10,10 +10,11 @@ const {
 
 router.post('/', async (req, res) => {
   try {
-    const { workOrderTitle, description, assignedTo, createdBy, username } = req.body;
+    const { workOrderTitle, description, assignedTo, createdBy, username, signed,pdf } = req.body;
     const workOrder = new WorkOrder({
       workOrderTitle,
       description,
+      signed,
       assignedTo,
       username,
       createdBy
@@ -29,7 +30,7 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const { username } = req.query;
+    const { username,signed } = req.query;
     const query = username ? { username } : {};
     const workOrders = await WorkOrder.find(query);
     res.status(200).json(workOrders);

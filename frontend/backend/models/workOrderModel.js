@@ -13,6 +13,10 @@ const workOrderSchema = new mongoose.Schema({
   assignedTo: {
     type: String
   },
+  signed: {
+    type: String,
+    required: true
+  },
   status: {
     type: String,
     enum: ['Pending', 'In Progress', 'Completed'],
@@ -29,7 +33,7 @@ const workOrderSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  }
+  },
 });
 
 module.exports = mongoose.model('WorkOrder', workOrderSchema);

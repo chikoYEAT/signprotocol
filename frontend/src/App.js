@@ -11,20 +11,108 @@ import {
   issueCertificate,
   createAuction,
   placeBid,
-  finalizeAuction
+  finalizeAuction,
+  signPDFDocument, getPDFSignature,
+  PDFaddress
 } from './contractIntegration';
 import Login from './components/Login';
 import Documentation from './components/documentation';
+import Web3 from 'web3';
+import contractABI1 from './components/utils/abi_contract_1';
+import contractAddress from './components/utils/contract1';
 
 
-function Dashboard({ walletConnected, handleConnectWallet, contract, account,username }) {
+
+function Dashboard({ walletConnected, handleConnectWallet, contract,onHashChange }) {
   const [workOrderDetails, setWorkOrderDetails] = useState('');
   const [workOrderId, setWorkOrderId] = useState('');
-  const [certificateURL, setCertificateURL] = useState('');
-  const [auctionDetails, setAuctionDetails] = useState('');
   const [bidAmount, setBidAmount] = useState('');
   const [auctionId, setAuctionId] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+    const [exportedHash, setExportedHash] = useState("");
+      const [file, setFile] = useState(null);
+  const [hash, setHash] = useState("");
+  const [web3, setWeb3] = useState(null);
+  const [account, setAccount] = useState("");
+
+  useEffect(() => {
+    async function connectToWallet() {
+      if (window.ethereum) {
+        const web3Instance = new Web3(window.ethereum);
+        try {
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          const accounts = await web3Instance.eth.getAccounts();
+          setWeb3(web3Instance);
+          setAccount(accounts[0]);
+          console.log('Web3 successfully connected to wallet.');
+        } catch (error) {
+          console.error('Failed to connect to wallet:', error);
+        }
+      } else {
+        console.error('Please install MetaMask or use a web3-enabled browser.');
+      }
+    }
+    connectToWallet();
+  }, []);
+
+  function handleFileUpload(event) {
+    setFile(event.target.files[0]);
+  }
+
+    const updateHash = (newHash) => {
+    setHash(newHash);
+    if (onHashChange) {
+      onHashChange(newHash); // Notify parent component
+    }
+  };
+
+    const handleFileHashing = () => {
+    const calculatedHash = "someGeneratedHash"; // Replace with actual logic to generate hash
+    updateHash(calculatedHash);
+  };
+
+  async function handleHashConversion() {
+    if (!file) {
+      console.log("No file selected");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const fileData = new Uint8Array(reader.result);
+      const hashBuffer = await window.crypto.subtle.digest('SHA-256', fileData);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      const hashBytes32 = "0x" + hashHex;
+      setHash(hashBytes32);
+      console.log("File Hash:", hashBytes32);
+    }
+    reader.readAsArrayBuffer(file);
+  }
+
+  async function handleContractInteraction(contractABI, contractAddr, method, params = []) {
+    if (!web3 || !account) {
+      console.error('Web3 or account not initialized');
+      return;
+    }
+
+    const contract = new web3.eth.Contract(contractABI, contractAddr);
+    try {
+      const result = await contract.methods[method](...params).send({ from: account });
+      console.log(`${method} result:`, result);
+      return result;
+    } catch (error) {
+      console.error(`Error in ${method}:`, error);
+    }
+  }
+
+  async function handleAddDocument() {
+    if (!hash) {
+      console.error('No hash available');
+      return;
+    }
+    await handleContractInteraction(contractABI1, contractAddress, 'addDocument', [hash]);
+  }
 
   const handleGrantRoleAndCreateWorkOrder = async () => {
     if (!walletConnected) {
@@ -60,48 +148,6 @@ function Dashboard({ walletConnected, handleConnectWallet, contract, account,use
     }
   };
 
-  const handleApproveWorkOrder = async () => {
-    if (!walletConnected) {
-      setErrorMessage('Please connect your wallet first.');
-      return;
-    }
-    try {
-      await approveWorkOrder(workOrderId);
-      alert('Work Order Approved');
-      setErrorMessage('');
-    } catch (error) {
-      setErrorMessage('Error approving work order: ' + error.message);
-    }
-  };
-
-  const handleIssueCertificate = async () => {
-    if (!walletConnected) {
-      setErrorMessage('Please connect your wallet first.');
-      return;
-    }
-    try {
-      await issueCertificate(workOrderId, certificateURL);
-      alert('Certificate Issued');
-      setErrorMessage('');
-    } catch (error) {
-      setErrorMessage('Error issuing certificate: ' + error.message);
-    }
-  };
-
-  const handleCreateAuction = async () => {
-    if (!walletConnected) {
-      setErrorMessage('Please connect your wallet first.');
-      return;
-    }
-    try {
-      await createAuction(auctionDetails);
-      alert('Auction Created');
-      setErrorMessage('');
-    } catch (error) {
-      setErrorMessage('Error creating auction: ' + error.message);
-    }
-  };
-
   const handlePlaceBid = async () => {
     if (!walletConnected) {
       setErrorMessage('Please connect your wallet first.');
@@ -115,25 +161,36 @@ function Dashboard({ walletConnected, handleConnectWallet, contract, account,use
       setErrorMessage('Error placing bid: ' + error.message);
     }
   };
-  const handleFinalizeAuction = async () => {
-    try {
-      await finalizeAuction(auctionId);
-      const username = localStorage.getItem('username');
-      if (!username) {
-        throw new Error('Username not found in localStorage.');
-      }
-      const response = await axios.post('http://localhost:5000/api/work-orders', {
-        workOrderTitle: workOrderDetails,
-        description: `Details of the work order created after finalizing auction ${auctionId}`,
-        createdBy: account,
-        username: `${username}`  // Ensure username is correctly added here
-      });
-      alert('Auction Finalized and Work Order Created');
-    } catch (error) {
-      console.error('Error finalizing auction:', error.message);
-      setErrorMessage('Error finalizing auction: ' + error.message);
+const handleFinalizeAuction = async () => {
+  try {
+    await finalizeAuction(auctionId);
+    const username = localStorage.getItem('username');
+    if (!username) {
+      throw new Error('Username not found in localStorage.');
     }
-  };
+
+    // Debug the values before sending the request
+    console.log('Work Order Details:', workOrderDetails);
+    console.log('Username:', username);
+    console.log('Signed Hash:', hash);
+    console.log(exportedHash)
+    console.log('Account:', account);
+
+    const response = await axios.post('http://localhost:5000/api/work-orders', {
+      workOrderTitle: workOrderDetails,
+      description: `Details of the work order created after finalizing auction ${auctionId}`,
+      createdBy: account,
+      username: `${username}`,
+      signed: `${hash}`,
+    });
+
+    alert('Auction Finalized and Work Order Created');
+  } catch (error) {
+    console.error('Error finalizing auction:', error.message);
+    setErrorMessage('Error finalizing auction: ' + error.message);
+  }
+};
+
 
  return (
     <div className="min-h-screen bg-black text-white p-4 sm:p-6 font-sans" style={{paddingTop:'80px'}}>
@@ -164,37 +221,42 @@ function Dashboard({ walletConnected, handleConnectWallet, contract, account,use
               </div>
             </Section>
 
-            <Section title="Approve Work Order">
-              <Input 
-                value={workOrderId} 
-                onChange={(e) => setWorkOrderId(e.target.value)} 
-                placeholder="Enter work order ID"
-              />
-              <Button onClick={handleApproveWorkOrder} className="bg-blue-600 hover:bg-blue-700">Approve</Button>
-            </Section>
-
-            <Section title="Issue Certificate">
-              <Input 
-                value={workOrderId} 
-                onChange={(e) => setWorkOrderId(e.target.value)} 
-                placeholder="Enter work order ID"
-              />
-              <Input 
-                value={certificateURL} 
-                onChange={(e) => setCertificateURL(e.target.value)} 
-                placeholder="Enter certificate URL"
-              />
-              <Button onClick={handleIssueCertificate}>Issue Certificate</Button>
-            </Section>
-
-            <Section title="Create Auction">
-              <Input 
-                value={auctionDetails} 
-                onChange={(e) => setAuctionDetails(e.target.value)} 
-                placeholder="Enter auction details"
-              />
-              <Button onClick={handleCreateAuction} className="bg-teal-600 hover:bg-teal-700">Create Auction</Button>
-            </Section>
+    <Section title="Issue Certificate" className="p-6 bg-gray-800 rounded-lg shadow-md">
+      <div className="mb-4">
+        <Input
+          value={workOrderId}
+          onChange={(e) => setWorkOrderId(e.target.value)}
+          placeholder="Enter work order ID"
+          className="w-full p-2 border border-gray-600 rounded-lg"
+        />
+      </div>
+      <div className="mb-4">
+        <input
+          type="file"
+          onChange={handleFileUpload}
+          className="w-full text-gray-700 border border-gray-600 rounded-lg"
+        />
+      </div>
+      <div className="flex gap-4 mb-4">
+        <Button
+          onClick={handleHashConversion}
+          className="bg-indigo-600 hover:bg-indigo-700"
+        >
+          Convert to Hash
+        </Button>
+        <Button
+          onClick={handleAddDocument}
+          className="bg-indigo-600 hover:bg-indigo-700"
+        >
+          Sign Document
+        </Button>
+      </div>
+      {hash && (
+        <p className="text-gray-300 mt-4">
+          <strong>Hash:</strong> {hash}
+        </p>
+      )}
+    </Section>
 
             <Section title="Place Bid">
               <Input 
