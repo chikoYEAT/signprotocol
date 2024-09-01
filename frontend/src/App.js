@@ -361,20 +361,6 @@ function Home() {
       <section className="flex-1 flex flex-col items-center justify-center px-4 md:px-6 py-12 md:py-24 lg:py-32">
         <div className="container px-4 md:px-6 space-y-8">
           <div className="text-center space-y-4">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl" style={{display:'flex',justifyContent:'center'}}>What Our Customers Say</h2>
-            <p className="text-gray-400">Hear from the people who have experienced our solutions firsthand.</p>
-          </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <TestimonialCard name="John Doe" title="CEO, Acme Inc." message="The platform has been a game-changer for our business. The features and performance are unmatched." />
-            <TestimonialCard name="Jane Smith" title="Marketing Manager, Acme Inc." message="The platform has been a game-changer for our business. The features and performance are unmatched." />
-            <TestimonialCard name="Bob Johnson" title="IT Manager, Acme Inc." message="The platform has been a game-changer for our business. The features and performance are unmatched." />
-          </div>
-        </div>
-      </section>
-
-      <section className="flex-1 flex flex-col items-center justify-center px-4 md:px-6 py-12 md:py-24 lg:py-32 bg-[#2a2a2a]">
-        <div className="container px-4 md:px-6 space-y-8">
-          <div className="text-center space-y-4">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Get in Touch</h2>
             <p className="text-gray-400">Have a question or want to learn more? Contact us today.</p>
           </div>
