@@ -89,13 +89,13 @@ npm run dev
                 <code>
                 # API LOGIN
                 <br />
-                http://localhost:5000/api/auth/login
+                /api/auth/login
                 </code>
                 <br />
                 <code>
                 # API REGISTER
                 <br/>
-                http://localhost:5000/api/auth/login
+                /api/auth/login
                 </code>
                 </pre>
                 <br/>
@@ -104,7 +104,7 @@ npm run dev
                 </p>
                 <pre className="bg-gray-900 text-purple-200 p-4 mt-4 rounded-md shadow-lg overflow-auto">
                     <code>
-                        http://localhost:5000/api/work-orders
+                        /api/work-orders
                     </code>
                 </pre>
                 <br />

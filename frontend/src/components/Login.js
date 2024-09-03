@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Importing eye icons
 
+
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? ''  // Leave it empty in production for relative paths
+  : 'http://localhost:5001';  // Use localhost in development
+
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -11,7 +16,7 @@ const Login = ({ onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         username,
         password
       });

@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './workOrderAdmin.css'; // Import the CSS file
+
+import './workOrderAdmin.css'; // Import the CSS 
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? ''  // Leave it empty in production for relative paths
+  : 'http://localhost:5001';  // Use localhost in development
 
 const WorkOrderAdmin = () => {
   const [workOrders, setWorkOrders] = useState([]);
@@ -14,7 +18,7 @@ const WorkOrderAdmin = () => {
         console.error('No token found');
         return;
       }
-      const response = await axios.get(`http://localhost:5000/api/work-orders?username=${encodeURIComponent(username)}`, {
+      const response = await axios.get(`${API_BASE_URL}/api/work-orders?username=${encodeURIComponent(username)}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setWorkOrders(response.data);
@@ -42,7 +46,7 @@ const WorkOrderAdmin = () => {
         return;
       }
       await axios.patch(
-        `http://localhost:5000/api/work-orders/${selectedWorkOrderId}/status`, 
+        `${API_BASE_URL}/api/work-orders/${selectedWorkOrderId}/status`, 
         { status: 'approved' }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
