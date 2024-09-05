@@ -22,9 +22,6 @@ import contractABI1 from './components/utils/abi_contract_1';
 import contractAddress from './components/utils/contract1';
 
 
-const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? ''  // Leave it empty in production for relative paths
-  : 'http://localhost:5001';  // Use localhost in development
 
 function Dashboard({ walletConnected, handleConnectWallet, contract,onHashChange }) {
   const [workOrderDetails, setWorkOrderDetails] = useState('');
@@ -179,7 +176,7 @@ const handleFinalizeAuction = async () => {
     console.log(exportedHash)
     console.log('Account:', account);
 
-    const response = await axios.post(`${API_BASE_URL}/api/work-orders`, {
+    const response = await axios.post('http://localhost:5000/api/work-orders', {
       workOrderTitle: workOrderDetails,
       description: `Details of the work order created after finalizing auction ${auctionId}`,
       createdBy: account,

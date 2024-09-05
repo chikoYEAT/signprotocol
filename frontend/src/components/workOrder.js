@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? ''  // Leave it empty in production for relative paths
-  : 'http://localhost:5001';  // Use localhost in development
 const WorkOrders = () => {
   const [workOrders, setWorkOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +18,7 @@ const WorkOrders = () => {
         }
 
         const response = await axios.get(
-          `${API_BASE_URL}/api/work-orders?username=${encodeURIComponent(username)}`
+          `http://localhost:5000/api/work-orders?username=${encodeURIComponent(username)}`
         );
 
         setWorkOrders(response.data);
