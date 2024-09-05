@@ -14,7 +14,7 @@ const WorkOrderAdmin = () => {
         console.error('No token found');
         return;
       }
-      const response = await axios.get(`http://localhost:5000/api/work-orders?username=${encodeURIComponent(username)}`, {
+      const response = await axios.get(`https://signprotocol.onrender.com/api/work-orders?username=${encodeURIComponent(username)}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setWorkOrders(response.data);

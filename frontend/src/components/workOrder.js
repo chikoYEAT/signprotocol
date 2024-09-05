@@ -18,7 +18,7 @@ const WorkOrders = () => {
         }
 
         const response = await axios.get(
-          `http://localhost:5000/api/work-orders?username=${encodeURIComponent(username)}`
+          `https://signprotocol.onrender.com/api/work-orders?username=${encodeURIComponent(username)}`
         );
 
         setWorkOrders(response.data);

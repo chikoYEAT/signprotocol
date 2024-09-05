@@ -176,7 +176,7 @@ const handleFinalizeAuction = async () => {
     console.log(exportedHash)
     console.log('Account:', account);
 
-    const response = await axios.post('http://localhost:5000/api/work-orders', {
+    const response = await axios.post('https://signprotocol.onrender.com/api/work-orders', {
       workOrderTitle: workOrderDetails,
       description: `Details of the work order created after finalizing auction ${auctionId}`,
       createdBy: account,
